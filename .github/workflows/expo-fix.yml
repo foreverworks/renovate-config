@@ -14,7 +14,7 @@ on:
         type: string
         default: .
       runner:
-        description: The runs-on label (a private repo uses the fleet's own runner for itself).
+        description: The runs-on label (a private repo uses its own self-hosted runner label; a public one, ubuntu-latest).
         type: string
         default: ubuntu-latest
       node-version-file:
@@ -44,8 +44,14 @@ jobs:
           node-version-file: ${{ inputs.node-version-file }}
 
       # The branch's code is Renovate's, not reviewed yet: no package script runs with a token that can push.
+      # The root first (a workspace monorepo installs the app there), then the app's own lockfile if it has one
+      # (an example app inside a library repo).
       - name: Install without package scripts
-        run: npm ci --ignore-scripts
+        env:
+          APP_DIR: ${{ inputs.app-dir }}
+        run: |
+          if [ -f package-lock.json ]; then npm ci --ignore-scripts; fi
+          if [ "$APP_DIR" != "." ] && [ -f "$APP_DIR/package-lock.json" ]; then npm ci --ignore-scripts --prefix "$APP_DIR"; fi
 
       - name: Align Expo's packages with this branch's expo
         working-directory: ${{ inputs.app-dir }}
