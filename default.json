@@ -1,0 +1,59 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "description": [
+    "The base every Forever Works product repo extends: weekly PRs that the owner merges, never automerged.",
+    "Majors wait on the Dependency Dashboard for a tick; npm minors and patches arrive as one weekly PR, three days after release.",
+    "Commits by github-actions[bot] on a Renovate branch (a fix workflow's) do not stop Renovate from rebasing it."
+  ],
+  "extends": [
+    "config:recommended",
+    ":timezone(Europe/Bucharest)"
+  ],
+  "automerge": false,
+  "platformAutomerge": false,
+  "schedule": [
+    "before 6am on monday"
+  ],
+  "prConcurrentLimit": 6,
+  "prHourlyLimit": 0,
+  "semanticCommits": "disabled",
+  "commitMessagePrefix": "renovate:",
+  "gitIgnoredAuthors": [
+    "41898282+github-actions[bot]@users.noreply.github.com"
+  ],
+  "major": {
+    "dependencyDashboardApproval": true
+  },
+  "packageRules": [
+    {
+      "description": "A new npm release waits three days before Renovate proposes it: most hijacked versions are pulled within that window.",
+      "matchDatasources": [
+        "npm"
+      ],
+      "minimumReleaseAge": "3 days"
+    },
+    {
+      "description": "Every npm minor and patch in one weekly PR.",
+      "matchManagers": [
+        "npm"
+      ],
+      "matchUpdateTypes": [
+        "minor",
+        "patch"
+      ],
+      "groupName": "npm minor and patch"
+    },
+    {
+      "description": "Every GitHub Action in one weekly PR.",
+      "matchManagers": [
+        "github-actions"
+      ],
+      "matchUpdateTypes": [
+        "minor",
+        "patch",
+        "digest"
+      ],
+      "groupName": "GitHub Actions"
+    }
+  ]
+}

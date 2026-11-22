@@ -1,0 +1,73 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "description": [
+    "For a repo with an Expo app. Each Expo SDK names the exact versions of React, React Native and every native module it bundles,",
+    "so Renovate moves only `expo` itself. The expo-fix workflow (.github/workflows/expo-fix.yml here, called from the app's repo)",
+    "then runs `npx expo install --fix` on the Renovate branch and commits the matching versions of everything else.",
+    "An SDK major waits on the Dependency Dashboard: tick it when there is time to build both platforms and run the e2e flows."
+  ],
+  "extends": [
+    "github>foreverworks/renovate-config"
+  ],
+  "packageRules": [
+    {
+      "description": [
+        "Expo picks these versions. A Renovate PR for one of them on its own would be reverted by `expo install --fix`.",
+        "A react-native-* library that Expo does not bundle is turned back on in the repo's own renovate.json."
+      ],
+      "matchManagers": [
+        "npm"
+      ],
+      "matchPackageNames": [
+        "expo-*",
+        "@expo/*",
+        "react",
+        "react-dom",
+        "react-test-renderer",
+        "@types/react",
+        "@types/react-dom",
+        "react-native",
+        "react-native-*",
+        "@react-native/*",
+        "@react-native-community/*",
+        "@react-native-async-storage/*",
+        "@react-native-picker/*",
+        "@shopify/flash-list",
+        "@shopify/react-native-skia",
+        "@sentry/react-native",
+        "lottie-react-native",
+        "jest-expo",
+        "babel-preset-expo",
+        "eslint-config-expo",
+        "typescript"
+      ],
+      "enabled": false
+    },
+    {
+      "description": "`expo` gets its own PR, and its range moves with it (~58.0.20 becomes ~58.0.26), so the companions follow.",
+      "matchManagers": [
+        "npm"
+      ],
+      "matchPackageNames": [
+        "expo"
+      ],
+      "groupName": "Expo SDK",
+      "rangeStrategy": "bump"
+    },
+    {
+      "description": "A new Expo SDK changes React Native, the Xcode image EAS builds on, and sometimes the app's own code.",
+      "matchManagers": [
+        "npm"
+      ],
+      "matchPackageNames": [
+        "expo"
+      ],
+      "matchUpdateTypes": [
+        "major"
+      ],
+      "prBodyNotes": [
+        "**A new Expo SDK.** Before merging: read the SDK's changelog (expo.dev/changelog), wait for the `expo-fix` commit on this branch, run `npx expo-doctor` in the app, build a development client on iOS and Android and run the Maestro flows on both. The first EAS build after the merge also moves to the SDK's Xcode image."
+      ]
+    }
+  ]
+}

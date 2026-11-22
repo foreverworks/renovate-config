@@ -1,0 +1,22 @@
+# Copy to .github/workflows/expo-fix.yml in a repo with an Expo app, and set the inputs.
+name: expo-fix
+
+on:
+  push:
+    branches: ["renovate/**"]
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: expo-fix-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  fix:
+    uses: foreverworks/renovate-config/.github/workflows/expo-fix.yml@main
+    with:
+      app-dir: apps/mobile
+      runner: <the repo's runner label, e.g. ritual>
+      ci-workflow: ci.yml

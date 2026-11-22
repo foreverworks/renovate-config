@@ -1,0 +1,72 @@
+# Runs `npx expo install --fix` on a Renovate branch that moved `expo`, and commits what it changes,
+# so the PR carries the React, React Native and native module versions that SDK names.
+# Called from the app's repo by examples/expo-fix.yml. A push made with GITHUB_TOKEN starts no
+# workflow, so this never loops; the github-actions[bot] commit is in default.json's
+# gitIgnoredAuthors, so Renovate keeps rebasing the branch. A dispatch is the one event
+# GITHUB_TOKEN may start, so `ci-workflow` re-runs the repo's checks on the fixed commit.
+name: expo-fix
+
+on:
+  workflow_call:
+    inputs:
+      app-dir:
+        description: The Expo app's directory, from the repo root.
+        type: string
+        default: .
+      runner:
+        description: The runs-on label (a private repo uses the fleet's own runner for itself).
+        type: string
+        default: ubuntu-latest
+      node-version-file:
+        description: Where setup-node reads the Node version (package.json reads engines.node).
+        type: string
+        default: package.json
+      ci-workflow:
+        description: A workflow file with workflow_dispatch to run on the fixed commit ("" for none).
+        type: string
+        default: ""
+
+permissions:
+  contents: write
+  actions: write
+
+jobs:
+  fix:
+    runs-on: ${{ inputs.runner }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.ref_name }}
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: ${{ inputs.node-version-file }}
+
+      # The branch's code is Renovate's, not reviewed yet: no package script runs with a token that can push.
+      - name: Install without package scripts
+        run: npm ci --ignore-scripts
+
+      - name: Align Expo's packages with this branch's expo
+        working-directory: ${{ inputs.app-dir }}
+        run: npx --no-install expo install --fix -- --ignore-scripts
+
+      - name: Commit and push what changed
+        id: commit
+        run: |
+          if git diff --quiet; then
+            echo "Every Expo package already matches; nothing to commit."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -qam "renovate: npx expo install --fix"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
+          echo "pushed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Run the repo's checks on the fixed commit
+        if: steps.commit.outputs.pushed == 'true' && inputs.ci-workflow != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CI_WORKFLOW: ${{ inputs.ci-workflow }}
+        run: gh workflow run "$CI_WORKFLOW" --ref "$GITHUB_REF_NAME"
