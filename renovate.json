@@ -1,0 +1,7 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "description": "This repo follows its own base preset; its only dependencies are the Actions in the expo-fix workflow.",
+  "extends": [
+    "github>foreverworks/renovate-config"
+  ]
+}
