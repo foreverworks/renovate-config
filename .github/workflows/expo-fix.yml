@@ -21,6 +21,10 @@ on:
         description: Where setup-node reads the Node version (package.json reads engines.node).
         type: string
         default: package.json
+      node-version:
+        description: A Node version, for a repo that pins it nowhere in a file; it wins over node-version-file.
+        type: string
+        default: ""
       ci-workflow:
         description: A workflow file with workflow_dispatch to run on the fixed commit ("" for none).
         type: string
@@ -41,6 +45,7 @@ jobs:
 
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
+          node-version: ${{ inputs.node-version }}
           node-version-file: ${{ inputs.node-version-file }}
 
       # The branch's code is Renovate's, not reviewed yet: no package script runs with a token that can push.
