@@ -2,6 +2,7 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "description": [
     "The base every Forever Works product repo extends: weekly PRs that the owner merges, never automerged.",
+    "One written exception (owner, 2026-11-22, FLEET-100): base-images.json, extended by infra, job-crm, mcps and finledger, merges ghcr.io/foreverworks/debian and node digest bumps on green CI.",
     "Majors wait on the Dependency Dashboard for a tick; npm minors and patches arrive as one weekly PR, three days after release.",
     "Commits by github-actions[bot] on a Renovate branch (a fix workflow's) do not stop Renovate from rebasing it."
   ],

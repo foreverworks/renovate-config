@@ -1,0 +1,31 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "description": [
+    "Our own base images, ghcr.io/foreverworks/debian and ghcr.io/foreverworks/node, which foreverworks/debian-oci-images releases within about an hour of a Debian security snapshot that changes them.",
+    "Owner's decision, 2026-11-22 (FLEET-100): in infra, job-crm, mcps and finledger, Renovate merges these two images' digest bumps, and tag bumps within the same line, on green CI. Every other update stays a PR the owner merges.",
+    "Renovate merges only when every check on its branch has passed: a branch with no checks waits, and one red check stops the merge. Where a repo allows GitHub's auto-merge, its required checks hold the merge too."
+  ],
+  "packageRules": [
+    {
+      "description": "Every FROM line on these images stays pinned by digest, so each new release is a change Renovate can see.",
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["ghcr.io/foreverworks/debian", "ghcr.io/foreverworks/node"],
+      "pinDigests": true
+    },
+    {
+      "description": "A new base merges on its own once CI is green, at any hour, because it usually carries a security fix. A new major line (Debian 14, the next Node LTS) is not covered: it stays a PR.",
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["ghcr.io/foreverworks/debian", "ghcr.io/foreverworks/node"],
+      "matchUpdateTypes": ["digest", "patch", "minor"],
+      "groupName": "foreverworks base images",
+      "schedule": ["at any time"],
+      "automerge": true,
+      "automergeType": "pr",
+      "platformAutomerge": true,
+      "ignoreTests": false,
+      "prBodyNotes": [
+        "A new release of our own base image (foreverworks/debian-oci-images). Renovate merges this PR once every check on it has passed (owner, 2026-11-22, FLEET-100). A red check stops it here for a person to look at."
+      ]
+    }
+  ]
+}

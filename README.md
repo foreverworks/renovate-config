@@ -15,6 +15,13 @@ gets the same weekly rhythm and an Expo app never receives a PR that its SDK wou
   and commits the versions that SDK names. An SDK major (57 to 58) waits on the dashboard, and its
   PR lists what to check before merging.
 
+- **`github>foreverworks/renovate-config:base-images`** (`base-images.json`): the one exception to
+  "only the owner merges" (owner, 2026-11-22). Our own base images, `ghcr.io/foreverworks/debian` and
+  `ghcr.io/foreverworks/node`, stay pinned by digest, and a new release within the same line merges
+  on its own, at any hour, once every check on its PR has passed. A security fix in a base image
+  then reaches the repo's main without waiting for Monday. A PR with no checks, or a red one, waits
+  for a person. infra, job-crm, mcps and finledger extend it.
+
 ## Using it in a repo with an Expo app
 
 1. `renovate.json` at the root, from `examples/renovate.json`.
