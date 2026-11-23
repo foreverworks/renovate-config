@@ -18,5 +18,5 @@ jobs:
     uses: foreverworks/renovate-config/.github/workflows/expo-fix.yml@main
     with:
       app-dir: apps/mobile
-      runner: <the repo's runner label, e.g. ritual>
+      runner: <the repo's runner label, e.g. ubuntu-latest>
       ci-workflow: ci.yml

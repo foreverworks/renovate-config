@@ -2,7 +2,7 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "description": [
     "Our own base images, ghcr.io/foreverworks/debian and ghcr.io/foreverworks/node, which foreverworks/debian-oci-images releases within about an hour of a Debian security snapshot that changes them.",
-    "Owner's decision, 2026-11-22 (FLEET-100): in infra, job-crm, mcps and finledger, Renovate merges these two images' digest bumps, and tag bumps within the same line, on green CI. Every other update stays a PR the owner merges.",
+    "In a repo that extends this preset, Renovate merges these two images' digest bumps, and tag bumps within the same line, on green CI. Every other update stays a PR that a person merges.",
     "Renovate merges only when every check on its branch has passed: a branch with no checks waits, and one red check stops the merge. Where a repo allows GitHub's auto-merge, its required checks hold the merge too."
   ],
   "packageRules": [
@@ -24,7 +24,7 @@
       "platformAutomerge": true,
       "ignoreTests": false,
       "prBodyNotes": [
-        "A new release of our own base image (foreverworks/debian-oci-images). Renovate merges this PR once every check on it has passed (owner, 2026-11-22, FLEET-100). A red check stops it here for a person to look at."
+        "A new release of our own base image (foreverworks/debian-oci-images). Renovate merges this PR once every check on it has passed. A red check stops it here for a person to look at."
       ]
     }
   ]
