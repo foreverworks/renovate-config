@@ -84,3 +84,7 @@ reviewed yet and its job holds a token that can push.
 
 Open an issue in this repository. A change to a preset reaches every repo that extends it as soon as
 it lands on `main`, so describe what it does to their pull requests.
+
+## License
+
+MIT. See [LICENSE](LICENSE).
