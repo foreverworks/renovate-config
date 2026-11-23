@@ -16,8 +16,9 @@ if you build Expo apps) into your own preset repository or your repo's `renovate
 the schedule, time zone and limits to yours. Extending ours means that any edit we push to `main`
 changes your Renovate runs the next time they run, with no review on your side. If you do extend it,
 you accept that. The `base-images` preset is of no use outside our organization: it names our own
-images. The `expo-fix` workflow is the same: call a copy of it, or pin it to a commit SHA rather than
-`@main`.
+images. For the `expo-fix` workflow, either copy `.github/workflows/expo-fix.yml` into your repo and
+call it with `uses: ./.github/workflows/expo-fix.yml`, or keep calling ours but pin it to a commit
+(`uses: foreverworks/renovate-config/.github/workflows/expo-fix.yml@<commit sha>`) rather than `@main`.
 
 ## What you need
 
@@ -32,7 +33,7 @@ images. The `expo-fix` workflow is the same: call a copy of it, or pin it to a c
 - **`github>foreverworks/renovate-config`** (`default.json`): the base. PRs arrive before 6 am on
   Monday, Bucharest time, and none is merged automatically. A major version waits on the Dependency
   Dashboard until someone ticks it. npm minors and patches come as one PR, three days after release
-  (most hijacked versions are pulled within that window), and GitHub Actions as another. At most six
+ , and GitHub Actions as another. At most six
   PRs are open at once, and commits start with `renovate:`.
 - **`github>foreverworks/renovate-config:expo`** (`expo.json`): the base, plus the Expo rule. An Expo
   SDK decides the versions of React, React Native and every native module it bundles, so Renovate
@@ -51,11 +52,17 @@ images. The `expo-fix` workflow is the same: call a copy of it, or pin it to a c
 
 ## Using it in a repo with an Expo app
 
-1. `renovate.json` at the root, from `examples/renovate.json`.
+1. `renovate.json` at the root, from `examples/renovate.json`. It extends
+   `github>foreverworks/renovate-config:expo`. If you copied the presets, replace that line with
+   your own copy of `expo.json`, and make the `extends` in your copy of `expo.json` point at your own
+   base preset: as shipped it still extends `github>foreverworks/renovate-config`.
 2. `.github/workflows/expo-fix.yml`, from `examples/expo-fix.yml`, with the app's directory, the
    runner label (`ubuntu-latest` for a repo on GitHub's runners), and the CI workflow to re-run on
-   the fixed commit. That workflow needs a `workflow_dispatch:` trigger, because a commit pushed
-   with the workflow's own token starts no checks by itself.
+   the fixed commit. Its `uses:` line points at `foreverworks/renovate-config/...@main`: if you copied
+   the workflow, change it to `./.github/workflows/expo-fix.yml`; if not, pin the `@main` to a commit
+   SHA. The workflow runs on pushes to `renovate/**` branches and needs `contents: write` and
+   `actions: write` (the example sets both). The CI workflow it re-runs needs a `workflow_dispatch:`
+   trigger, because a commit pushed with the workflow's own token starts no checks by itself.
 3. The repo added to the Renovate app's installation (GitHub, organization settings, Installed
    GitHub Apps, Renovate, Repository access).
 

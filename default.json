@@ -27,7 +27,7 @@
   },
   "packageRules": [
     {
-      "description": "A new npm release waits three days before Renovate proposes it: most hijacked versions are pulled within that window.",
+      "description": "A new npm release waits three days before Renovate proposes it, so a bad release has time to be noticed and pulled.",
       "matchDatasources": [
         "npm"
       ],
