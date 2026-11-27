@@ -8,8 +8,9 @@ would undo.
 
 These presets are what the Forever Works organization uses for its own repositories, and its
 repositories read them live from `main`. They encode one team's choices: pull requests arrive before
-6 am on Monday in the **Europe/Bucharest** time zone, nothing merges by itself (apart from one preset
-for our own container images), and a new npm release waits three days.
+6 am on Monday in the **Europe/Bucharest** time zone, an update within a major line merges by itself
+once every check on its PR has passed, a major waits for a person, and a new npm release waits three
+days.
 
 **If you are not us, copy a preset instead of extending it.** Copy `default.json` (and `expo.json`
 if you build Expo apps) into your own preset repository or your repo's `renovate.json`, then change
@@ -31,21 +32,26 @@ call it with `uses: ./.github/workflows/expo-fix.yml`, or keep calling ours but 
 ## The presets
 
 - **`github>foreverworks/renovate-config`** (`default.json`): the base. PRs arrive before 6 am on
-  Monday, Bucharest time, and none is merged automatically. A major version waits on the Dependency
-  Dashboard until someone ticks it. npm minors and patches come as one PR, three days after release
- , and GitHub Actions as another. At most six
-  PRs are open at once, and commits start with `renovate:`.
+  Monday, Bucharest time. A minor, patch, digest or pin update merges on its own once every check
+  on its PR has passed. Renovate merges it itself rather than through GitHub's auto-merge, so a PR
+  with no checks at all, or with a pending or red one, waits for a person. A security fix within a
+  major line merges the same way, as soon as it is proposed. A major version waits on the Dependency
+  Dashboard until someone ticks it, and its PR is merged by a person; so are updates of 0.x npm
+  packages, which come as a PR of their own. npm minors and patches come as one PR and GitHub Actions
+  as another, both three days after release, the Actions pinned to commit SHAs (except this repo's
+  own `expo-fix` workflow, which stays at `@main`). At most six PRs are open at once, and commits
+  start with `renovate:`.
 - **`github>foreverworks/renovate-config:expo`** (`expo.json`): the base, plus the Expo rule. An Expo
   SDK decides the versions of React, React Native and every native module it bundles, so Renovate
   moves only `expo`. The `expo-fix` workflow then runs `npx expo install --fix` on that PR's branch
   and commits the versions that SDK names. An SDK major (57 to 58) waits on the dashboard, and its
-  PR lists what to check before merging. The rule also holds back `typescript`, which Expo pins
+  PR lists what to check before merging. An `expo` bump, even a patch, is merged by a person after a
+  build on both platforms; the app's other npm updates merge like anywhere else. The rule also holds back `typescript`, which Expo pins
   too. The full list of held packages is in `expo.json`.
-- **`github>foreverworks/renovate-config:base-images`** (`base-images.json`): the one exception to
-  "nothing merges by itself". Our own base images, `ghcr.io/foreverworks/debian` and
-  `ghcr.io/foreverworks/node` (built by
+- **`github>foreverworks/renovate-config:base-images`** (`base-images.json`): our own base images,
+  `ghcr.io/foreverworks/debian` and `ghcr.io/foreverworks/node` (built by
   [debian-oci-images](https://github.com/foreverworks/debian-oci-images)), stay pinned by digest, and
-  a new release within the same line merges on its own, at any hour, once every check on its PR has
+  a new release within the same line merges on its own, at any hour rather than on Monday, once every check on its PR has
   passed. A security fix in a base image then reaches the repo's main without waiting for Monday. A
   PR with no checks, or a red one, waits for a person. A new major line (Debian 14, the next Node
   LTS) stays a PR. A few of our repos extend it.

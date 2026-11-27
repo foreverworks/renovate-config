@@ -55,6 +55,16 @@
       "rangeStrategy": "bump"
     },
     {
+      "description": "An Expo SDK release, even a patch, changes native code, so it stays a PR that a person merges after building the app on both platforms; the rest of the app's npm updates merge on green checks like anywhere else.",
+      "matchManagers": [
+        "npm"
+      ],
+      "matchPackageNames": [
+        "expo"
+      ],
+      "automerge": false
+    },
+    {
       "description": "A new Expo SDK changes React Native, the Xcode image EAS builds on, and sometimes the app's own code.",
       "matchManagers": [
         "npm"

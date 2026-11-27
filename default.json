@@ -1,17 +1,21 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "description": [
-    "The base for every Forever Works repo: weekly dependency PRs that a person merges, never merged automatically.",
-    "One written exception: base-images.json merges digest bumps of ghcr.io/foreverworks/debian and ghcr.io/foreverworks/node on green CI.",
-    "Majors wait on the Dependency Dashboard for a tick; npm minors and patches arrive as one weekly PR, three days after release.",
+    "The base for every Forever Works repo: weekly dependency PRs, and the ones that stay within a major line merge on their own once every check on them has passed.",
+    "Renovate merges them itself, never through GitHub's auto-merge (platformAutomerge off): it merges only when every check on the branch has passed, so a branch with no checks, or with a pending or red one, waits for a person.",
+    "Majors wait on the Dependency Dashboard for a tick and then stay a PR for a person; so do 0.x npm packages, which semver lets break in a minor. A security fix within a major line merges the same way, without the weekly wait.",
+    "npm minors and patches arrive as one weekly PR, three days after release; GitHub Actions as another, three days after release and pinned to commit SHAs.",
     "Commits by github-actions[bot] on a Renovate branch (a fix workflow's) do not stop Renovate from rebasing it."
   ],
   "extends": [
     "config:recommended",
-    ":timezone(Europe/Bucharest)"
+    ":timezone(Europe/Bucharest)",
+    "helpers:pinGitHubActionDigests"
   ],
   "automerge": false,
+  "automergeType": "pr",
   "platformAutomerge": false,
+  "ignoreTests": false,
   "schedule": [
     "before 6am on monday"
   ],
@@ -34,6 +38,23 @@
       "minimumReleaseAge": "3 days"
     },
     {
+      "description": "A new Action release, a moved tag included, waits three days before Renovate proposes it: an Action runs with the workflow's token and secrets, and a bad release is usually withdrawn within that time.",
+      "matchManagers": [
+        "github-actions"
+      ],
+      "minimumReleaseAge": "3 days"
+    },
+    {
+      "description": "Our own reusable workflows (expo-fix) are called at @main on purpose, so every repo runs the current one: they are not pinned to a commit.",
+      "matchManagers": [
+        "github-actions"
+      ],
+      "matchPackageNames": [
+        "foreverworks/renovate-config"
+      ],
+      "pinDigests": false
+    },
+    {
       "description": "Every npm minor and patch in one weekly PR.",
       "matchManagers": [
         "npm"
@@ -52,9 +73,48 @@
       "matchUpdateTypes": [
         "minor",
         "patch",
-        "digest"
+        "digest",
+        "pinDigest"
       ],
       "groupName": "GitHub Actions"
+    },
+    {
+      "description": [
+        "An update within a major line merges on its own once every check on its PR has passed: Renovate checks the branch on each run and merges only when nothing is pending or red.",
+        "A branch with no checks at all, or with any check pending or red, never merges this way (ignoreTests stays false)."
+      ],
+      "matchUpdateTypes": [
+        "minor",
+        "patch",
+        "digest",
+        "pin",
+        "pinDigest",
+        "lockFileMaintenance"
+      ],
+      "automerge": true
+    },
+    {
+      "description": [
+        "A 0.x npm package promises nothing between minors, so its updates come as their own weekly PR for a person.",
+        "They are grouped apart so that one of them does not hold back the automerge of every other npm minor and patch."
+      ],
+      "matchManagers": [
+        "npm"
+      ],
+      "matchCurrentVersion": "/^0\\./",
+      "matchUpdateTypes": [
+        "minor",
+        "patch"
+      ],
+      "groupName": "npm 0.x packages",
+      "automerge": false
+    },
+    {
+      "description": "A major stays a PR for a person, after its tick on the Dependency Dashboard.",
+      "matchUpdateTypes": [
+        "major"
+      ],
+      "automerge": false
     }
   ]
 }
